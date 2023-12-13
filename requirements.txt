@@ -8,6 +8,9 @@ astropy == 6.0.0
 # astro_explorations/astro_explorations/Initial Testing/Dead Ends/lightkurve_experiments.ipynb: 17
 dash == 2.7.0
 
+# astro_explorations/astro_explorations/Initial Testing/TLS_experimentation.ipynb: 27
+detecta == 0.0.5
+
 # astro_explorations/astro_explorations/Initial Testing/Dead Ends/lightkurve_cleaned.ipynb: 15
 # astro_explorations/astro_explorations/Initial Testing/Dead Ends/lightkurve_experiments.ipynb: 11,12
 # astro_explorations/astro_explorations/Initial Testing/TLS_experimentation.ipynb: 14,16
