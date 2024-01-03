@@ -18,7 +18,11 @@ from transitleastsquares import catalog_info
 from detecta import detect_peaks
 
 
-
+colors=["#bcb056", "#d98556", "#d2617a", "#9c5aa2", "#1b60ad",
+        "#20ff0b", "#00dfb4", "#00b2ff", "#0078f6","#6a309a",
+        "#65c9ff","#8baaff", "#df75ea", "#ff158d", "#ff0000",
+        "#d25dfa", "#ff138a","#fa5916", "#a88d00", "#12a404",
+       "#a4eeff", "#96d5ff", "#c7afff", "#fb80c4", "#ff6363"]
 
 def window_len(data, return_lc=False):
     stellar_properties=catalog_info(KIC_ID=int(data[0].meta['KEPLERID']))
@@ -74,7 +78,7 @@ def harmonic_frac_trace(tls_results, mult=1.5):
     y_comp=y_comp[:-1]
 
     harm_frac_lines=go.Scattergl(x=x_comp,y=y_comp, mode='lines',
-                                  line=dict(color="#008176",
+                                  line=dict(color="#1fb927",
                                      width=3,
                                      dash="dot"), name='Other Significant <br> Peaks', opacity=0.5, )
     return(harm_frac_lines)
@@ -154,33 +158,14 @@ def lightcurve_traces(data, window_length=None):
     PDCSAP_traces={}
     norm_traces={}
     
-    fully_norm_flux_trace=go.Scattergl(x=data2plot[5], y=data2plot[4],  mode='markers',  marker_size=1)
+    fully_norm_flux_trace=go.Scattergl(x=data2plot[5], y=data2plot[4],  mode='markers',  marker_size=1, marker_color="#006e99")
 
     for x in range(0, upper_range):
-        SAP_traces['SAP_trace_' + str(x)]=go.Scattergl(x=data2plot[3][x], name=f"Quarter {data[x].quarter}", y=data2plot[1][x], mode='markers',  marker_size=2)
-        PDCSAP_traces['SAP_trace_' + str(x)]=go.Scattergl(x=data2plot[3][x], name=f"Quarter {data[x].quarter}", y=data2plot[0][x], mode='markers',  marker_size=2)
-        norm_traces['SAP_trace_' + str(x)]=go.Scattergl(x=data2plot[3][x], name=f"Quarter {data[x].quarter}", y=data2plot[2][x], mode='markers',  marker_size=2)
+        SAP_traces['SAP_trace_' + str(x)]=go.Scattergl(x=data2plot[3][x], name=f"Quarter {data[x].quarter}", y=data2plot[1][x], mode='markers',  marker_size=2, marker_color=colors[x])
+        PDCSAP_traces['SAP_trace_' + str(x)]=go.Scattergl(x=data2plot[3][x], name=f"Quarter {data[x].quarter}", y=data2plot[0][x], mode='markers',  marker_size=2,  marker_color=colors[x])
+        norm_traces['SAP_trace_' + str(x)]=go.Scattergl(x=data2plot[3][x], name=f"Quarter {data[x].quarter}", y=data2plot[2][x], mode='markers',  marker_size=2,  marker_color=colors[x])
         
     return (PDCSAP_traces, SAP_traces, norm_traces, fully_norm_flux_trace)
-
-
-
-def lightcurve_traces(data, window_length=None):
-    upper_range=len(data)-1
-
-    data2plot=lightcurve_data(data, window_length=None)
-
-    SAP_traces={}
-    PDCSAP_traces={}
-    norm_traces={}
-    
-    fully_norm_flux_trace=go.Scattergl(x=data2plot[5], y=data2plot[4],  mode='markers',  marker_size=1, marker=dict(color='#0000a7'))
-
-    for x in range(0, upper_range):
-        SAP_traces['SAP_trace_' + str(x)]=go.Scattergl(x=data2plot[3][x], name=f"Quarter {data[x].quarter}", y=data2plot[1][x], mode='markers',  marker_size=2)
-        PDCSAP_traces['SAP_trace_' + str(x)]=go.Scattergl(x=data2plot[3][x], name=f"Quarter {data[x].quarter}", y=data2plot[0][x], mode='markers',  marker_size=2)
-        norm_traces['SAP_trace_' + str(x)]=go.Scattergl(x=data2plot[3][x], name=f"Quarter {data[x].quarter}", y=data2plot[2][x], mode='markers',  marker_size=2)
-    return(PDCSAP_traces, SAP_traces, norm_traces, fully_norm_flux_trace)
 
 
 
@@ -288,7 +273,7 @@ def tls_plotting(tls_results, mult=1.5, window=0.5):
        harm_frac_lines=harmonic_frac_trace(tls_results, mult)
        
        data_tls=go.Scattergl(x=tls_results.periods, y=tls_results.power, mode='lines', 
-                             line=dict(color='#0000a7', width=1.5),
+                             line=dict(color="#468eb5", width=1.5),
                              name="SDE", showlegend=False),
                   
        layout_tls=go.Layout(xaxis=dict(range=[min(tls_results.periods), max(tls_results.periods)], 
@@ -302,7 +287,7 @@ def tls_plotting(tls_results, mult=1.5, window=0.5):
        tls_fig.add_trace(harm_frac_lines) 
 
        tls_fig.add_trace(go.Scattergl(x=[tls_results.period, tls_results.period],y=[y_axis_min, y_axis_max], mode='lines',
-                                  line=dict(color="#c1272d",
+                                  line=dict(color="#a35680",
                                      width=5,
                                     ),
                                     name='Maximum Peak', opacity=0.2
@@ -333,9 +318,9 @@ def tls_plotting(tls_results, mult=1.5, window=0.5):
                               )
        
        
-       tls_folded=go.Scattergl(x=tls_results.folded_phase, y=tls_results.folded_y,   mode='markers',  marker_size=1.5, marker=dict(color="#c1272d"), name= "Binned Flux")
+       tls_folded=go.Scattergl(x=tls_results.folded_phase, y=tls_results.folded_y,   mode='markers',  marker_size=1.5, marker=dict(color="#9e4d79"), name= "Binned Flux")
        tls_model=go.Scattergl(x=tls_results.model_folded_phase, y=tls_results.model_folded_model, name= "TLS Model Flux", mode='lines',
-                             line=dict(color='#0000a7', width=2))
+                             line=dict(color= "27685d", width=2))
       
        tls_folded_data=[tls_folded, tls_model]
       
