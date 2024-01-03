@@ -320,7 +320,7 @@ def tls_plotting(tls_results, mult=1.5, window=0.5):
        
        tls_folded=go.Scattergl(x=tls_results.folded_phase, y=tls_results.folded_y,   mode='markers',  marker_size=1.5, marker=dict(color="#9e4d79"), name= "Binned Flux")
        tls_model=go.Scattergl(x=tls_results.model_folded_phase, y=tls_results.model_folded_model, name= "TLS Model Flux", mode='lines',
-                             line=dict(color= "27685d", width=2))
+                             line=dict(color= "#27685d", width=2))
       
        tls_folded_data=[tls_folded, tls_model]
       
