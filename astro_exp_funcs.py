@@ -236,14 +236,14 @@ def lightcurve_plot(data, window_length=None):
 
 
 
-def tls_results(data, max_period=None):
+def tls_results(data, max_period=None, period_window=0.6):
     flux_unit=data[0]['flux'].unit.to_string()
     time_unit=data[0]['time'].format
 
     if max_period==None or max_period=='calc':
         model_data=lightcurve_data(data, window_length='calc')
         tls_model=transitleastsquares(model_data[5], model_data[4])
-        results=tls_model.power(period_min=model_data[8]*0.6, period_max=1.2*model_data[8])
+        results=tls_model.power(period_min=model_data[8]*period_window, period_max=(1+period_window)*model_data[8])
         results.name=data[0].meta['OBJECT']
         results.flux_unit=flux_unit
         results.time_unit=time_unit
@@ -252,7 +252,7 @@ def tls_results(data, max_period=None):
     else:
         model_data=lightcurve_data(data, window_length=None)
         tls_model=transitleastsquares(model_data[5], model_data[4])
-        results=tls_model.power(period_min=max_period*0.6, period_max=max_period)
+        results=tls_model.power(period_min=max_period*period_window, period_max=max_period)
         results.name=data[0].meta['OBJECT']
         results.stdev=results.depth_mean[0]*np.sqrt(results.in_transit_count)/results.snr
         return(results)
@@ -290,7 +290,7 @@ def tls_plotting(tls_results, mult=1.5, window=0.5):
                                   line=dict(color="#a35680",
                                      width=5,
                                     ),
-                                    name='Maximum Peak', opacity=0.2
+                                    name='Maximum Peak', opacity=0.4
                                     )
                                 )
 
