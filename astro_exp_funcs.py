@@ -65,7 +65,7 @@ def tls_peak_periods(tls_results, mult=1.5):
 
 
 def harmonic_frac_trace(tls_results, mult=1.5):
-    harm_periods=tls_peak_periods(tls_results, mult=1.5)
+    harm_periods=tls_peak_periods(tls_results, mult=mult)
     
     nones=[None] * len(harm_periods)
     
