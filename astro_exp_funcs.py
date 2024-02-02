@@ -85,7 +85,7 @@ def harmonic_frac_trace(tls_results, mult=1.5):
 
 
 
-def lightcurve_data(data, window_length=None):
+def lightcurve_data(data, window_length=None, method='biweight', break_tolerance=0.5):
     SAP=[]
     PDCSAP=[]
     norm=[]
@@ -120,11 +120,21 @@ def lightcurve_data(data, window_length=None):
                                   method='mad',  # mad or std
                                   center='median'  # median or mean
                                   )
-        flatten_lc=flatten( 
-            stitched_time*u.day,                 # Array of time values
-            clipped_flux,                 # Array of flux values
-            window_length=window_length, method='biweight', return_trend=False)
-        
+        if method == 'biweight':
+            flatten_lc=flatten( 
+                stitched_time*u.day,                 # Array of time values
+                clipped_flux,                 # Array of flux values
+                window_length=window_length, method='biweight', return_trend=False)
+            
+        if method== 'cofiam':
+            flatten_lc=flatten( 
+                stitched_time*u.day,                 # Array of time values
+                clipped_flux, method='cofiam',
+                
+                window_length=window_length,    # Protected window span in units of ``time``
+                break_tolerance=break_tolerance,
+                return_trend=False,       # Return trend and flattened light curve
+                ) 
         detrended_time, detrended_flux= cleaned_array(stitched_time, flatten_lc)
         return(PDCSAP, SAP, norm, time, detrended_flux, detrended_time, stitched, window_length, period)
         
@@ -138,27 +148,36 @@ def lightcurve_data(data, window_length=None):
                                   method='mad',  # mad or std
                                   center='median'  # median or mean
                                   )
-        flatten_lc=flatten( 
-            stitched_time*u.day,                 # Array of time values
-            clipped_flux,                 # Array of flux values
-            window_length=window_length, method='biweight', return_trend=False)
-        
+        if method == 'biweight':
+            flatten_lc=flatten( 
+                stitched_time*u.day,                 # Array of time values
+                clipped_flux,                 # Array of flux values
+                window_length=window_length, method='biweight', return_trend=False)
+        if method== 'cofiam':
+            flatten_lc=flatten( 
+                stitched_time*u.day,                 # Array of time values
+                clipped_flux, method='cofiam',
+
+                window_length=window_length,    # Protected window span in units of ``time``
+                break_tolerance=break_tolerance,
+                return_trend=False,       # Return trend and flattened light curve
+                )    
         detrended_time, detrended_flux= cleaned_array(stitched_time, flatten_lc)
         
         return (PDCSAP, SAP, norm, time, detrended_flux, detrended_time, stitched)
 
 
 
-def lightcurve_traces(data, window_length=None):
+def lightcurve_traces(data, window_length=None, method='biweight', break_tolerance=0.5):
     upper_range=len(data)-1
 
-    data2plot=lightcurve_data(data, window_length=None)
+    data2plot=lightcurve_data(data, window_length=window_length, method=method, break_tolerance=break_tolerance)
 
     SAP_traces={}
     PDCSAP_traces={}
     norm_traces={}
     
-    fully_norm_flux_trace=go.Scattergl(x=data2plot[5], y=data2plot[4],  mode='markers',  marker_size=1, marker_color="#006e99")
+    fully_norm_flux_trace=go.Scattergl(x=data2plot[5], y=data2plot[4],  mode='markers',  marker_size=2, marker_color="#006e99")
 
     for x in range(0, upper_range):
         SAP_traces['SAP_trace_' + str(x)]=go.Scattergl(x=data2plot[3][x], name=f"Quarter {data[x].quarter}", y=data2plot[1][x], mode='markers',  marker_size=2, marker_color=colors[x])
@@ -169,9 +188,9 @@ def lightcurve_traces(data, window_length=None):
 
 
 
-def lightcurve_plot(data, window_length=None):
+def lightcurve_plot(data, window_length=None, method='biweight', break_tolerance=0.5):
     
-    traces2plot=lightcurve_traces(data, window_length=None)
+    traces2plot=lightcurve_traces(data, window_length=window_length, method=method,break_tolerance=break_tolerance)
 
     flux_unit=data[0]['flux'].unit.to_string()
     time_unit=data[0]['time'].format
@@ -236,12 +255,12 @@ def lightcurve_plot(data, window_length=None):
 
 
 
-def tls_results(data, max_period=None, period_window=0.6):
+def tls_results(data, max_period=None, period_window=0.6, method='biweight', break_tolerance=0.5):
     flux_unit=data[0]['flux'].unit.to_string()
     time_unit=data[0]['time'].format
 
     if max_period==None or max_period=='calc':
-        model_data=lightcurve_data(data, window_length='calc')
+        model_data=lightcurve_data(data, window_length='calc', method=method, break_tolerance=break_tolerance)
         tls_model=transitleastsquares(model_data[5], model_data[4])
         results=tls_model.power(period_min=model_data[8]*period_window, period_max=(1+period_window)*model_data[8])
         results.name=data[0].meta['OBJECT']
@@ -250,7 +269,7 @@ def tls_results(data, max_period=None, period_window=0.6):
         results.stdev=results.depth_mean[0]*np.sqrt(results.in_transit_count)/results.snr
         return(results)
     else:
-        model_data=lightcurve_data(data, window_length=None)
+        model_data=lightcurve_data(data, window_length=None, method=method, break_tolerance=break_tolerance)
         tls_model=transitleastsquares(model_data[5], model_data[4])
         results=tls_model.power(period_min=max_period*period_window, period_max=max_period)
         results.name=data[0].meta['OBJECT']
@@ -318,7 +337,7 @@ def tls_plotting(tls_results, mult=1.5, window=0.5):
                               )
        
        
-       tls_folded=go.Scattergl(x=tls_results.folded_phase, y=tls_results.folded_y,   mode='markers',  marker_size=1.5, marker=dict(color="#9e4d79"), name= "Binned Flux")
+       tls_folded=go.Scattergl(x=tls_results.folded_phase, y=tls_results.folded_y,   mode='markers',  marker_size=2, marker=dict(color="#9e4d79"), name= "Binned Flux")
        tls_model=go.Scattergl(x=tls_results.model_folded_phase, y=tls_results.model_folded_model, name= "TLS Model Flux", mode='lines',
                              line=dict(color= "#27685d", width=2))
       
